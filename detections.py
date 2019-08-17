@@ -9,6 +9,7 @@ import darknet
 
 from utilities import *
 from tracking import *
+from speedEstimate import *
 
 np.random.seed(42)
 COLORS = np.random.randint(0, 255, size=(200, 3), dtype="uint8")
@@ -98,6 +99,7 @@ def YOLO():
 
         detections = convert_to_tracking_format(detections, (width, height))
         clone_frame = frame_read.copy()
+        
         detections, labels = filter_detections(detections)
         image = cvDrawBoxesLabel(detections,labels, frame_read)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -105,6 +107,8 @@ def YOLO():
         track_ids = tracking(detections, frame_count)
         imageTracked = cvDrawBoxesTracked(track_ids[:,:6], clone_frame)
         imageTracked = cv2.cvtColor(imageTracked, cv2.COLOR_BGR2RGB)
+
+        estimated_vels = estimateSpeed(track_ids, frame_count)
 
         # print('Execution Time Per Frame', time.time()-prev_time)
         print('fps',1/(time.time()-prev_time),'frame',frame_count)
@@ -116,7 +120,6 @@ def YOLO():
     cap.release()
     out.release()
     outTracker.release()
-    finalize_tracker()
 
 
 if __name__ == "__main__":

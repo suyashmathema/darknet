@@ -82,7 +82,7 @@ def convertBack(x, y, w, h):
 
 
 def cvDrawBoxesLabel(detections, labels, img):
-    for detection, label in zip(detections,labels):
+    for detection, label in zip(detections, labels):
         pt1 = (int(detection[0]), int(detection[1]))
         pt2 = (int(detection[2]), int(detection[3]))
         cv2.rectangle(img, pt1, pt2, (0, 255, 0), 1)
