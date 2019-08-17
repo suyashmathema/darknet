@@ -112,7 +112,7 @@ def estimateSpeed(track_bbs_ids, frame_no):
     #     det = detections_filtered[track_ids_filtered == tr]
     #     box_vel = velocities_filtered[track_ids_filtered == tr]
     estimated_vels = []
-    for tr in track_ids:
+    for tr in new_track_ids:
         det = new_detections[new_track_ids == tr]
         box_vel = new_velocities[new_track_ids == tr]
         last_frames = frame[track_ids == tr]

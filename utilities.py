@@ -107,6 +107,19 @@ def cvDrawBoxesTracked(detections, img):
     return img
 
 
+def cvDrawBoxesSpeed(speeds, detections, img):
+    for i, detection in enumerate(detections):
+        pt1 = (int(detection[0]), int(detection[1]))
+        pt2 = (int(detection[2]), int(detection[3]))
+        cv2.rectangle(img, pt1, pt2, (0, 255, 0), 1)
+        cv2.putText(img,
+                    "ID:" + str(detection[5]) +
+                    " [" + str(round(speeds[i], 2)) + "km/h]",
+                    (pt1[0], pt1[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                    [0, 255, 0], 2)
+    return img
+
+
 def convert_to_tracking_format(detections, size):
     W_scale = size[0] / 416
     H_scale = size[1] / 416
