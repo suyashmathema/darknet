@@ -8,21 +8,15 @@ import time
 import darknet
 
 from utilities import *
-from sort import *
-
-tracker = Sort()
 
 np.random.seed(42)
 COLORS = np.random.randint(0, 255, size=(200, 3), dtype="uint8")
-
 
 netMain = None
 metaMain = None
 altNames = None
 
-
 def YOLO():
-
     global metaMain, netMain, altNames
     configPath = "./cfg/yolov3.cfg"
     weightPath = "./yolov3.weights"
@@ -77,6 +71,7 @@ def YOLO():
                                        darknet.network_height(netMain), 3)
     strt_time = time.time()
     print('Start Time', strt_time)
+
     while True:
         prev_time = time.time()
         ret, frame_read = cap.read()
@@ -98,8 +93,8 @@ def YOLO():
         detections = darknet.detect_image(
             netMain, metaMain, darknet_image, thresh=0.5)
 
-        detections = convert_to_coord(detections, (width, height))
-        image = cvDrawBoxes(detections, frame_resized)
+        detections = convert_to_tracking_format(detections, (width, height))
+        image = cvDrawBoxes(detections, frame_read)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         # print('Execution Time Per Frame', time.time()-prev_time)
@@ -109,3 +104,6 @@ def YOLO():
     print('End Time', time.time(), 'Elapsed Time', time.time() - strt_time)
     cap.release()
     out.release()
+
+if __name__ == "__main__":
+    YOLO()

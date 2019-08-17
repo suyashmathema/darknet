@@ -87,14 +87,14 @@ def cvDrawBoxes(detections, img):
         pt2 = (detection[2], detection[3])
         cv2.rectangle(img, pt1, pt2, (0, 255, 0), 1)
         cv2.putText(img,
-                    detection[4].decode() +
-                    " [" + str(round(detection[5] * 100, 2)) + "]",
+                    detection[5].decode() +
+                    " [" + str(round(detection[4] * 100, 2)) + "]",
                     (pt1[0], pt1[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     [0, 255, 0], 2)
     return img
 
 
-def convert_to_coord(detections, size):
+def convert_to_tracking_format(detections, size):
     W_scale = size[0] / 416
     H_scale = size[1] / 416
     det_coords = []

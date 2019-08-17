@@ -15,6 +15,17 @@ from nms import *
 np.random.seed(42)
 COLORS = np.random.randint(0, 255, size=(200, 3), dtype="uint8")
 
+# Return true if line segments AB and CD intersect
+def intersect(A,B,C,D):
+	return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
+
+def ccw(A,B,C):
+	return (C[1]-A[1]) * (B[0]-A[0]) > (B[1]-A[1]) * (C[0]-A[0])
+
+LINE1 = [(601, 424), (355, 389)]
+LINE2 = [(586, 484), (255, 436)]
+LINE_DISTANCE = 0.0122
+
 def convertBack(x, y, w, h):
     xmin = int(round(x - (w / 2)))
     xmax = int(round(x + (w / 2)))
@@ -124,6 +135,8 @@ def YOLO():
     out = cv2.VideoWriter("output.mp4", cv2.VideoWriter_fourcc(*'FLV1'),
             cap.get(cv2.CAP_PROP_FPS), (W, H))
     memory = {}
+    speed = {}
+    frame_count = 0
 
     print("Starting the YOLO loop...")
 
@@ -137,6 +150,7 @@ def YOLO():
         ret, frame_read = cap.read()
         if not ret:
             break
+        frame_count += 1
         frame_rgb = cv2.cvtColor(frame_read, cv2.COLOR_BGR2RGB)
         frame_resized = cv2.resize(frame_rgb,
                                    (darknet.network_width(netMain),
@@ -153,7 +167,7 @@ def YOLO():
         indices = non_max_suppression(nms_dets, 0.75, dets_confidence)
         detections = [detections[i] for i in indices]
 
-        tracker_dets = convertToDetectionFormat(detections, (W, H))
+        tracker_dets, nms_dets, dets_confidence = convertToDetectionFormat(detections, (W, H))
         tracks = tracker.update(tracker_dets)
 
         boxes = []
@@ -188,23 +202,39 @@ def YOLO():
                     p1 = (int(x2 + (w2-x2)/2), int(y2 + (h2-y2)/2))
                     cv2.line(frame_read, p0, p1, color, 3)
 
+                    if intersect(p0, p1, LINE1[0], LINE1[1]):
+                        speed[indexIDs[i]] = (frame_count, None)
+                        print('intersected line 1', frame_count, 'id', indexIDs[i])
+                    if intersect(p0, p1, LINE2[0], LINE2[1]) and indexIDs[i] in speed:
+                        print('intersected line 2', frame_count, 'prev', speed[indexIDs[i]][0], 'id', indexIDs[i])
+                        spd = int(LINE_DISTANCE / ((frame_count - speed[indexIDs[i]][0]) / cap.get(cv2.CAP_PROP_FPS) / 3600))
+                        speed[indexIDs[i]] = (frame_count, spd)
+                        
+                if indexIDs[i] in speed and speed[indexIDs[i]][0] is not None:
+                  text = "{}".format(speed[indexIDs[i]][1])
+                  cv2.putText(frame_read, text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.5, color, 1)
+                  
                 # text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
                 text = "{}".format(indexIDs[i])
-                cv2.putText(frame_read, text, (x, y - 5),
+                cv2.putText(frame_read, text, (x, y + 5),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
                 i += 1
 
+        print(speed)
         # image = cvDrawBoxes(detections, frame_read)
         # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         # print('Execution Time Per Frame', time.time()-prev_time)
         print(1/(time.time()-prev_time))
         #cv2.imshow('Demo', image)
+        
+        cv2.line(frame_read, LINE1[0], LINE1[1], 255, 1)
+        cv2.line(frame_read, LINE2[0], LINE2[1], 255, 1)
         out.write(frame_read)
         cv2.waitKey(3)
     print('End Time', time.time(), 'Elapsed Time', time.time() - strt_time)
     cap.release()
     out.release()
-
-
+    
+    
 if __name__ == "__main__":
     YOLO()
