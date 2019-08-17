@@ -97,19 +97,20 @@ def YOLO():
             netMain, metaMain, darknet_image, thresh=0.5)
 
         detections = convert_to_tracking_format(detections, (width, height))
-        detections = filter_detections(detections)
-        image = cvDrawBoxes(detections, frame_read)
+        clone_frame = frame_read.copy()
+        detections, labels = filter_detections(detections)
+        image = cvDrawBoxesLabel(detections,labels, frame_read)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         track_ids = tracking(detections, frame_count)
-        imageTracked = cvDrawBoxes(track_ids[:,:6], frame_read, tracked=True)
+        imageTracked = cvDrawBoxesTracked(track_ids[:,:6], clone_frame)
         imageTracked = cv2.cvtColor(imageTracked, cv2.COLOR_BGR2RGB)
 
         # print('Execution Time Per Frame', time.time()-prev_time)
-        print(1/(time.time()-prev_time))
+        print('fps',1/(time.time()-prev_time),'frame',frame_count)
         frame_count += 1
-        out.write(image)
-        outTracker.write(imageTracked)
+        out.write(frame_read)
+        outTracker.write(clone_frame)
         cv2.waitKey(3)
     print('End Time', time.time(), 'Elapsed Time', time.time() - strt_time)
     cap.release()
