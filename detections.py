@@ -78,8 +78,13 @@ def YOLO():
     print('Start Time', strt_time)
     initialize_tracker()
     while True:
+        if frame_count > 1100:
+          break
         prev_time = time.time()
         ret, frame_read = cap.read()
+        if frame_count < 1000:
+          frame_count += 1
+          continue
         if not ret:
             print('End of video, Exiting')
             break
@@ -108,7 +113,8 @@ def YOLO():
         imageTracked = cvDrawBoxesTracked(track_ids[:,:6], clone_frame)
         imageTracked = cv2.cvtColor(imageTracked, cv2.COLOR_BGR2RGB)
 
-        estimated_vels = estimateSpeed(track_ids, frame_count)
+        if len(track_ids) > 0:
+            estimated_vels = estimateSpeed(track_ids, frame_count)
 
         # print('Execution Time Per Frame', time.time()-prev_time)
         print('fps',1/(time.time()-prev_time),'frame',frame_count)
