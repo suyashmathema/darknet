@@ -81,16 +81,23 @@ def convertBack(x, y, w, h):
     return xmin, ymin, xmax, ymax
 
 
-def cvDrawBoxes(detections, img):
+def cvDrawBoxes(detections, img, tracked=False):
     for detection in detections:
         pt1 = (detection[0], detection[1])
         pt2 = (detection[2], detection[3])
         cv2.rectangle(img, pt1, pt2, (0, 255, 0), 1)
-        cv2.putText(img,
-                    detection[5].decode() +
-                    " [" + str(round(detection[4] * 100, 2)) + "]",
-                    (pt1[0], pt1[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                    [0, 255, 0], 2)
+        if tracked:
+            cv2.putText(img,
+                        "ID:" + str(detection[5]) +
+                        " [" + str(round(detection[4] * 100, 2)) + "]",
+                        (pt1[0], pt1[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                        [0, 255, 0], 2)
+        else:
+            cv2.putText(img,
+                        detection[5].decode() +
+                        " [" + str(round(detection[4] * 100, 2)) + "]",
+                        (pt1[0], pt1[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                        [0, 255, 0], 2)
     return img
 
 

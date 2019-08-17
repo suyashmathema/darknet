@@ -8,6 +8,7 @@ import time
 import darknet
 
 from utilities import *
+from tracking import *
 
 np.random.seed(42)
 COLORS = np.random.randint(0, 255, size=(200, 3), dtype="uint8")
@@ -15,6 +16,7 @@ COLORS = np.random.randint(0, 255, size=(200, 3), dtype="uint8")
 netMain = None
 metaMain = None
 altNames = None
+
 
 def YOLO():
     global metaMain, netMain, altNames
@@ -62,6 +64,8 @@ def YOLO():
     out = cv2.VideoWriter("output.mp4", cv2.VideoWriter_fourcc(*'FLV1'),
                           cap.get(cv2.CAP_PROP_FPS), (width, height))
 
+    outTracker = cv2.VideoWriter("outputTracker.mp4", cv2.VideoWriter_fourcc(*'FLV1'),
+                          cap.get(cv2.CAP_PROP_FPS), (width, height))
     frame_count = 0
 
     print("Starting the YOLO loop...")
@@ -71,14 +75,13 @@ def YOLO():
                                        darknet.network_height(netMain), 3)
     strt_time = time.time()
     print('Start Time', strt_time)
-
+    initialize_tracker()
     while True:
         prev_time = time.time()
         ret, frame_read = cap.read()
         if not ret:
             print('End of video, Exiting')
             break
-        frame_count += 1
         # Match color channel sequence, openCV use BGR and YOLO uses RGB
         frame_rgb = cv2.cvtColor(frame_read, cv2.COLOR_BGR2RGB)
         # Resizing image to match yolo input size
@@ -94,16 +97,26 @@ def YOLO():
             netMain, metaMain, darknet_image, thresh=0.5)
 
         detections = convert_to_tracking_format(detections, (width, height))
+        detections = filter_detections(detections)
         image = cvDrawBoxes(detections, frame_read)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
+        track_ids = tracking(detections, frame_count)
+        imageTracked = cvDrawBoxes(track_ids[:,:6], frame_read, tracked=True)
+        imageTracked = cv2.cvtColor(imageTracked, cv2.COLOR_BGR2RGB)
+
         # print('Execution Time Per Frame', time.time()-prev_time)
         print(1/(time.time()-prev_time))
-        out.write(frame_read)
+        frame_count += 1
+        out.write(image)
+        outTracker.write(imageTracked)
         cv2.waitKey(3)
     print('End Time', time.time(), 'Elapsed Time', time.time() - strt_time)
     cap.release()
     out.release()
+    outTracker.release()
+    finalize_tracker()
+
 
 if __name__ == "__main__":
     YOLO()
