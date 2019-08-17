@@ -78,13 +78,13 @@ def YOLO():
     print('Start Time', strt_time)
     initialize_tracker()
     while True:
-        if frame_count > 1100:
-          break
+        # if frame_count > 1100:
+        #   break
         prev_time = time.time()
         ret, frame_read = cap.read()
-        if frame_count < 1000:
-          frame_count += 1
-          continue
+        # if frame_count < 1000:
+        #   frame_count += 1
+        #   continue
         if not ret:
             print('End of video, Exiting')
             break

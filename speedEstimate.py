@@ -67,19 +67,12 @@ def compute_vel(box_vel, det, frame, s_x, s_y, y_min, y_max, H, last_frame, last
 
 
 def estimateSpeed(track_bbs_ids, frame_no):
-    print('Tracking bbs id length', len(track_bbs_ids))
     global frame, track_ids, detections, velocities, score, avg_velocities
     new_detections = track_bbs_ids[:, :4]
     new_velocities = track_bbs_ids[:, -3:-1]
     new_score = track_bbs_ids[:, 4]
     new_track_ids = track_bbs_ids[:, 5]
     new_frame = [frame_no] * len(track_bbs_ids)
-
-    print('new_detections', new_detections)
-    print('new_velocities', new_velocities)
-    print('new_score', new_score)
-    print('new_track_ids', new_track_ids)
-    print('new_frame', new_frame)
 
     if (detections is None):
         detections = np.matrix(new_detections)
@@ -107,37 +100,21 @@ def estimateSpeed(track_bbs_ids, frame_no):
     # velocities_filtered = np.matrix(velocities_filtered)
     # track_ids_filtered = np.array(track_ids_filtered)
 
-    # # Considering all detections corresponding to a given track id to calculate its speed
-    # for tr in track_ids_filtered:
-    #     det = detections_filtered[track_ids_filtered == tr]
-    #     box_vel = velocities_filtered[track_ids_filtered == tr]
     estimated_vels = []
     for tr in new_track_ids:
         det = new_detections[new_track_ids == tr]
         box_vel = new_velocities[new_track_ids == tr]
         last_frames = frame[track_ids == tr]
         last_avg_vels = avg_velocities[track_ids == tr]
-        print('det', det)
-        print('box_vel', box_vel)
-        print('last_frames', last_frames)
-        print('last_avg_vels', last_avg_vels)
         # measure the velocity
         estimated_vels.append(compute_vel(box_vel[0], det[0], frame_no, s_x, s_y,
                                           y_min, y_max, H, last_frames, last_avg_vels))
 
-    print('estimated_vels', estimated_vels)
     detections = np.append(detections, new_detections, 0)
     velocities = np.append(velocities, new_velocities, 0)
     score = np.append(score, new_score)
     track_ids = np.append(track_ids, new_track_ids)
     frame = np.append(frame, new_frame)
     avg_velocities = np.append(avg_velocities, estimated_vels)
-
-    print('ending new_detections', new_detections)
-    print('ending new_velocities', new_velocities)
-    print('ending new_score', new_score)
-    print('ending new_track_ids', new_track_ids)
-    print('ending new_frame', new_frame)
-    print('ending estimated_vels', estimated_vels)
 
     return estimated_vels
