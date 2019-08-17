@@ -23,7 +23,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from skimage import io
-from sklearn.utils.linear_assignment_ import linear_assignment
+from scipy.optimize import linear_sum_assignment
 import time
 import argparse
 from filterpy.kalman import KalmanFilter
@@ -157,20 +157,20 @@ def associate_detections_to_trackers(detections, trackers, iou_threshold=0.3):
   for d,det in enumerate(detections):
     for t,trk in enumerate(trackers):
       iou_matrix[d,t] = iou(det,trk)
-  matched_indices = linear_assignment(-iou_matrix)
+  row_indices, col_indices = linear_sum_assignment(-iou_matrix)
 
   unmatched_detections = []
   for d,det in enumerate(detections):
-    if(d not in matched_indices[:,0]):
+    if(d not in row_indices):
       unmatched_detections.append(d)
   unmatched_trackers = []
   for t,trk in enumerate(trackers):
-    if(t not in matched_indices[:,1]):
+    if(t not in col_indices):
       unmatched_trackers.append(t)
 
   #filter out matched with low IOU
   matches = []
-  for m in matched_indices:
+  for m in zip(row_indices, col_indices):
     if(iou_matrix[m[0],m[1]]<iou_threshold):
       unmatched_detections.append(m[0])
       unmatched_trackers.append(m[1])
