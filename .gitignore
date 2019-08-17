@@ -22,7 +22,8 @@ build_*/
 !build/darknet/YoloWrapper.cs
 .fuse*
 *.weights
-
+*.history
+*.vscode
 # OS Generated #
 .DS_Store*
 ehthumbs.db
