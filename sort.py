@@ -175,7 +175,7 @@ def associate_detections_to_trackers(detections, trackers, iou_threshold=0.3):
       unmatched_detections.append(m[0])
       unmatched_trackers.append(m[1])
     else:
-      matches.append(m.reshape(1,2))
+      matches.append(np.array(m).reshape(1,2))
   if(len(matches)==0):
     matches = np.empty((0,2),dtype=int)
   else:
