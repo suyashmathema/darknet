@@ -8,13 +8,13 @@ velocities = None
 score = None
 avg_velocities = None
 
-s_x = 3.2/6.0
-s_y = 1.5
-y_min = 500.0
-y_max = 1000.0
-L0 = 0.2
-f1 = 959.0
-f2 = -182.2639
+s_x = 16/223
+s_y = 3.9
+y_min = 0
+y_max = 1500.0
+L0 = 1
+f1 = 767.5
+f2 = -143.5
 V0 = 40
 
 # Specify H matrix to rectify videos of each location
@@ -46,14 +46,14 @@ def compute_vel(box_vel, det, frame, s_x, s_y, y_min, y_max, H, last_frame, last
     t_delta = frame - last_frame[-1]
 
     # tranlating the speed to pixel/second
-    vi = instant_vel / t_delta * 30 * 9 / 4
+    vi = instant_vel / t_delta * 50 * 3.6
 
     # Suppress noise
     if vi <= 3.0:
         vi = 0.0
 
     # Scale Recovery
-    s1, s2 = 1.1, 0.9
+    s1, s2 = 1.5/6, 1.5/4
     a, b = (s2 - s1) / (y_max - y_min), s1
     s = a * c[1] + b
 

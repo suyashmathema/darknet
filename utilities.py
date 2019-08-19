@@ -85,12 +85,12 @@ def cvDrawBoxesLabel(detections, labels, img):
     for detection, label in zip(detections, labels):
         pt1 = (int(detection[0]), int(detection[1]))
         pt2 = (int(detection[2]), int(detection[3]))
-        cv2.rectangle(img, pt1, pt2, (0, 255, 0), 1)
+        cv2.rectangle(img, pt1, pt2, (255, 0, 0), 1)
         cv2.putText(img,
                     label +
                     " [" + str(round(detection[4] * 100, 2)) + "]",
-                    (pt1[0], pt1[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                    [0, 255, 0], 2)
+                    (pt1[0], pt1[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                    [255, 0, 0], 2)
     return img
 
 
@@ -98,12 +98,12 @@ def cvDrawBoxesTracked(detections, img):
     for detection in detections:
         pt1 = (int(detection[0]), int(detection[1]))
         pt2 = (int(detection[2]), int(detection[3]))
-        cv2.rectangle(img, pt1, pt2, (0, 255, 0), 1)
+        cv2.rectangle(img, pt1, pt2, (255, 0, 0), 1)
         cv2.putText(img,
                     "ID:" + str(detection[5]) +
                     " [" + str(round(detection[4] * 100, 2)) + "]",
-                    (pt1[0], pt1[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                    [0, 255, 0], 2)
+                    (pt1[0], pt1[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                    [255, 0, 0], 2)
     return img
 
 
@@ -111,12 +111,12 @@ def cvDrawBoxesSpeed(speeds, detections, img):
     for i, detection in enumerate(detections):
         pt1 = (int(detection[0]), int(detection[1]))
         pt2 = (int(detection[2]), int(detection[3]))
-        cv2.rectangle(img, pt1, pt2, (0, 255, 0), 1)
+        cv2.rectangle(img, pt1, pt2, (255, 0, 0), 1)
         cv2.putText(img,
                     "ID:" + str(detection[5]) +
                     " [" + str(round(speeds[i], 2)) + "km/h]",
-                    (pt1[0], pt1[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                    [0, 255, 0], 2)
+                    (pt1[0], pt1[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                    [255, 0, 0], 2)
     return img
 
 
