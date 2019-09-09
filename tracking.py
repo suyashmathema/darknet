@@ -29,6 +29,8 @@ def filter_detections(detections):
     for detection in detections:
         bb = detection[:5]
         lab = detection[5].decode("utf-8")
+        if lab == 'person':
+          lab = 'motorbike'
         bb.append(lab)
         if lab in ["bicycle", "car", "motorbike", "bus", "truck"]:
             final_boxes.append(bb)

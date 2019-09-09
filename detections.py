@@ -11,6 +11,8 @@ from utilities import *
 from tracking import *
 from speedEstimate import *
 
+import argparse
+
 np.random.seed(42)
 COLORS = np.random.randint(0, 255, size=(200, 3), dtype="uint8")
 
@@ -19,7 +21,7 @@ metaMain = None
 altNames = None
 
 
-def YOLO():
+def YOLO(video='input.mp4', inputName="input"):
     global metaMain, netMain, altNames
     configPath = "./cfg/yolov3.cfg"
     weightPath = "./yolov3.weights"
@@ -59,15 +61,19 @@ def YOLO():
         except Exception:
             pass
 
-    cap = cv2.VideoCapture("test.mp4")
+    cap = cv2.VideoCapture(video)
     width = int(cap.get(3))
     height = int(cap.get(4))
-    out = cv2.VideoWriter("output.mp4", cv2.VideoWriter_fourcc(*'FLV1'),
+    out = cv2.VideoWriter("output/"+inputName+"-"+cap.get(cv2.CAP_PROP_FPS)+"-detection.mp4", cv2.VideoWriter_fourcc(*'XVID'),
                           cap.get(cv2.CAP_PROP_FPS), (width, height))
 
-    outTracker = cv2.VideoWriter("outputTracker.mp4", cv2.VideoWriter_fourcc(*'FLV1'),
-                          cap.get(cv2.CAP_PROP_FPS), (width, height))
+    outTracker = cv2.VideoWriter("output/"+inputName+"-"+cap.get(cv2.CAP_PROP_FPS)+"-tracking.mp4", cv2.VideoWriter_fourcc(*'XVID'),
+                                 cap.get(cv2.CAP_PROP_FPS), (width, height))
+    outSpeed = cv2.VideoWriter("output/"+inputName+"-"+cap.get(cv2.CAP_PROP_FPS)+"-speed.mp4", cv2.VideoWriter_fourcc(*'XVID'),
+                               cap.get(cv2.CAP_PROP_FPS), (width, height))
     frame_count = 0
+
+    init_speed_param(inputName)
 
     print("Starting the YOLO loop...")
 
@@ -104,31 +110,50 @@ def YOLO():
 
         detections = convert_to_tracking_format(detections, (width, height))
         clone_frame = frame_read.copy()
-        
+        clone_frame_speed = frame_read.copy()
+
         detections, labels = filter_detections(detections)
-        image = cvDrawBoxesLabel(detections,labels, frame_read)
+        image = cvDrawBoxesLabel(detections, labels, frame_read)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         track_ids = tracking(detections, frame_count)
-        # imageTracked = cvDrawBoxesTracked(track_ids[:,:6], clone_frame)
-        # imageTracked = cv2.cvtColor(imageTracked, cv2.COLOR_BGR2RGB)
+        imageTracked = cvDrawBoxesTracked(track_ids[:, :6], clone_frame)
+        imageTracked = cv2.cvtColor(imageTracked, cv2.COLOR_BGR2RGB)
 
         if len(track_ids) > 0:
-            estimated_vels = estimateSpeed(track_ids, frame_count)
-            imageTracked = cvDrawBoxesSpeed(estimated_vels, track_ids[:,:6], clone_frame)
-            imageTracked = cv2.cvtColor(imageTracked, cv2.COLOR_BGR2RGB)
+            estimated_vels = estimateSpeed(
+                track_ids, frame_count, cap.get(cv2.CAP_PROP_FPS))
+            imageSpeed = cvDrawBoxesSpeed(
+                estimated_vels, track_ids[:, :6], clone_frame_speed)
+            imageSpeed = cv2.cvtColor(imageSpeed, cv2.COLOR_BGR2RGB)
 
         # print('Execution Time Per Frame', time.time()-prev_time)
-        print('fps',1/(time.time()-prev_time),'frame',frame_count)
+        print('fps', 1/(time.time()-prev_time), 'frame', frame_count)
         frame_count += 1
         out.write(frame_read)
         outTracker.write(clone_frame)
-        cv2.waitKey(3)
+        outSpeed.write(clone_frame_speed)
+        cv2.waitKey(0)
     print('End Time', time.time(), 'Elapsed Time', time.time() - strt_time)
     cap.release()
     out.release()
     outTracker.release()
+    outSpeed.release()
 
 
 if __name__ == "__main__":
-    YOLO()
+    # Create the parser
+    my_parser = argparse.ArgumentParser(description='Path of the video')
+
+    # Add the arguments
+    my_parser.add_argument('Path',
+                           metavar='path',
+                           type=str,
+                           help='the path to list')
+
+    # Execute the parse_args() method
+    args = my_parser.parse_args()
+
+    input_path = args.Path
+    name = input_path[0:input_path.rfind('-')]
+    YOLO(input_path, name)

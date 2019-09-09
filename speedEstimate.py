@@ -21,7 +21,37 @@ V0 = 40
 H = [[L0, -L0*(f1/f2), 0.0], [0.0, 1.0, 0.0], [0.0, -(1/f2), 1.0]]
 
 
-def compute_vel(box_vel, det, frame, s_x, s_y, y_min, y_max, H, last_frame, last_avg_vels):
+parameters = {'GOPR1496-Car-60': {"s_x": 16/115, "s_y": 3.9, "y_min": 0.0, "y_max": 1500.0, "L0": 1, "f1": 517.5, "f2": -85.5, "V0": 40, "s1": 1.5/3, "s2": 1.5/2},
+              'GOPR1495-Car-50': {"s_x": 16/165, "s_y": 3.9, "y_min": 25.0, "y_max": 475.0, "L0": 1, "f1": 477.5, "f2": -127.5, "V0": 40, "s1": 1.5/4, "s2": 1.5/2},
+              'GOPR1494-Car-50': {"s_x": 16/240, "s_y": 3.9, "y_min": 30.0, "y_max": 680.0, "L0": 1, "f1": 782.5, "f2": -163.5, "V0": 40, "s1": 1.5/7, "s2": 1.5/5},
+              'GOPR1493-Car-50': {"s_x": 16/267, "s_y": 3.9, "y_min": 30.0, "y_max": 680.0, "L0": 1, "f1": 627.5, "f2": -185.5, "V0": 40, "s1": 1.5/7, "s2": 1.5/5},
+              'GOPR1492-Car-40': {"s_x": 16/217, "s_y": 3.9, "y_min": 30.0, "y_max": 680.0, "L0": 1, "f1": 757.5, "f2": -146.5, "V0": 40, "s1": 1.5/5, "s2": 1.5/3},
+              'GOPR1491-Car-30': {"s_x": 16/262, "s_y": 3.9, "y_min": 30.0, "y_max": 680.0, "L0": 1, "f1": 607.5, "f2": -180.5, "V0": 40, "s1": 1.5/7, "s2": 1.5/5},
+              'GOPR1489-Bike-60': {"s_x": 16/133, "s_y": 3.9, "y_min": 25.0, "y_max": 425.0, "L0": 1, "f1": 472.5, "f2": -94.5, "V0": 40, "s1": 1.5/3, "s2": 1.5/2},
+              'GOPR1488-Bike-50': {"s_x": 16/199, "s_y": 3.9, "y_min": 30.0, "y_max": 530.0, "L0": 1, "f1": 712.5, "f2": -126.5, "V0": 40, "s1": 1.5/5, "s2": 1.5/3},
+              'GOPR1487-Bike-50': {"s_x": 16/294, "s_y": 3.9, "y_min": 30.0, "y_max": 530.0, "L0": 1, "f1": 597.5, "f2": -196.5, "V0": 40, "s1": 1.5/8, "s2": 1.5/6},
+              'GOPR1486-Bike-40': {"s_x": 16/189, "s_y": 3.9, "y_min": 30.0, "y_max": 680.0, "L0": 1, "f1": 787.5, "f2": -127.5, "V0": 40, "s1": 1.5/5, "s2": 1.5/4},
+              'GOPR1485-Bike-30': {"s_x": 16/178, "s_y": 3.9, "y_min": 30.0, "y_max": 530.0, "L0": 1, "f1": 587.5, "f2": -114.5, "V0": 40, "s1": 1.5/5, "s2": 1.5/3}
+              }
+
+
+def init_speed_param(inputName):
+    global s_x, s_y, y_min, y_max, L0, f1, f2, V0, s1, s2, H
+    param = parameters[inputName]  
+    s_x = param["s_x"]
+    s_y = param["s_y"]
+    y_min = param["y_min"]
+    y_max = param["y_max"]
+    L0 = param["L0"]
+    f1 = param["f1"]
+    f2 = param["f2"]
+    V0 = param["V0"]
+    s1 = param["s1"]
+    s2 = param["s2"]
+    H = [[L0, -L0*(f1/f2), 0.0], [0.0, 1.0, 0.0], [0.0, -(1/f2), 1.0]]
+
+
+def compute_vel(box_vel, det, frame, s_x, s_y, s1, s2, y_min, y_max, H, last_frame, last_avg_vels, fps):
     """
     det: (x_1, y_1, x_2, y_2)
     """
@@ -45,15 +75,15 @@ def compute_vel(box_vel, det, frame, s_x, s_y, y_min, y_max, H, last_frame, last
         sum([(v_x_trans * s_x) ** 2, (v_y_trans * s_y) ** 2]))
     t_delta = frame - last_frame[-1]
 
-    # tranlating the speed to pixel/second
-    vi = instant_vel / t_delta * 50 * 3.6
+    # translating the speed to pixel/second
+    vi = instant_vel / t_delta * fps * 3.6
 
     # Suppress noise
     if vi <= 3.0:
         vi = 0.0
 
     # Scale Recovery
-    s1, s2 = 1.5/6, 1.5/4
+    # s1, s2 = 1.5/6, 1.5/4
     a, b = (s2 - s1) / (y_max - y_min), s1
     s = a * c[1] + b
 
@@ -66,7 +96,7 @@ def compute_vel(box_vel, det, frame, s_x, s_y, y_min, y_max, H, last_frame, last
     return v_estimate
 
 
-def estimateSpeed(track_bbs_ids, frame_no):
+def estimateSpeed(track_bbs_ids, frame_no, fps):
     global frame, track_ids, detections, velocities, score, avg_velocities
     new_detections = track_bbs_ids[:, :4]
     new_velocities = track_bbs_ids[:, -3:-1]
@@ -107,8 +137,8 @@ def estimateSpeed(track_bbs_ids, frame_no):
         last_frames = frame[track_ids == tr]
         last_avg_vels = avg_velocities[track_ids == tr]
         # measure the velocity
-        estimated_vels.append(compute_vel(box_vel[0], det[0], frame_no, s_x, s_y,
-                                          y_min, y_max, H, last_frames, last_avg_vels))
+        estimated_vels.append(compute_vel(box_vel[0], det[0], frame_no, s_x, s_y, s1, s2,
+                                          y_min, y_max, H, last_frames, last_avg_vels, fps))
 
     detections = np.append(detections, new_detections, 0)
     velocities = np.append(velocities, new_velocities, 0)
