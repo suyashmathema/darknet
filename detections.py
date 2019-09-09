@@ -64,12 +64,12 @@ def YOLO(video='input.mp4', inputName="input"):
     cap = cv2.VideoCapture(video)
     width = int(cap.get(3))
     height = int(cap.get(4))
-    out = cv2.VideoWriter("output/"+inputName+"-"+str(cap.get(cv2.CAP_PROP_FPS))+"-detection.mp4", cv2.VideoWriter_fourcc(*'XVID'),
+    out = cv2.VideoWriter(inputName+"-"+str(cap.get(cv2.CAP_PROP_FPS))+"-detection.mp4", cv2.VideoWriter_fourcc(*'FLV1'),
                           cap.get(cv2.CAP_PROP_FPS), (width, height))
 
-    outTracker = cv2.VideoWriter("output/"+inputName+"-"+str(cap.get(cv2.CAP_PROP_FPS))+"-tracking.mp4", cv2.VideoWriter_fourcc(*'XVID'),
+    outTracker = cv2.VideoWriter(inputName+"-"+str(cap.get(cv2.CAP_PROP_FPS))+"-tracking.mp4", cv2.VideoWriter_fourcc(*'FLV1'),
                                  cap.get(cv2.CAP_PROP_FPS), (width, height))
-    outSpeed = cv2.VideoWriter("output/"+inputName+"-"+str(cap.get(cv2.CAP_PROP_FPS))+"-speed.mp4", cv2.VideoWriter_fourcc(*'XVID'),
+    outSpeed = cv2.VideoWriter(inputName+"-"+str(cap.get(cv2.CAP_PROP_FPS))+"-speed.mp4", cv2.VideoWriter_fourcc(*'FLV1'),
                                cap.get(cv2.CAP_PROP_FPS), (width, height))
     frame_count = 0
 
