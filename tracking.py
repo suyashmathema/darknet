@@ -5,9 +5,9 @@ import utilities
 from sort import *
 import argparse
 
-MAX_DET_SIZE = 600
-MIN_DET_SCORE = 0.3
-NMS_THRESHOLD = 0.9
+MAX_DET_SIZE = 300
+MIN_DET_SCORE = 0.2
+NMS_THRESHOLD = 0.7
 
 # Construct the dictionary to contain tracking results
 mot_tracker = None
@@ -20,7 +20,7 @@ def initialize_tracker():
     KalmanBoxTracker.count = 0
 
     # establish the multi object tracker
-    mot_tracker = Sort()
+    mot_tracker = Sort(max_age=20)
 
 
 def filter_detections(detections):

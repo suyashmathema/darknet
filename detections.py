@@ -21,7 +21,7 @@ metaMain = None
 altNames = None
 
 
-def YOLO(video='input.mp4', inputName="input"):
+def YOLO(video='input.mp4', inputName="input", start = 0, end = -1):
     global metaMain, netMain, altNames
     configPath = "./cfg/yolov3.cfg"
     weightPath = "./yolov3.weights"
@@ -84,13 +84,13 @@ def YOLO(video='input.mp4', inputName="input"):
     print('Start Time', strt_time)
     initialize_tracker()
     while True:
-        # if frame_count > 1100:
-        #   break
+        if end > 0 and frame_count > end * cap.get(cv2.CAP_PROP_FPS):
+          break
         prev_time = time.time()
         ret, frame_read = cap.read()
-        # if frame_count < 1000:
-        #   frame_count += 1
-        #   continue
+        if frame_count < start * cap.get(cv2.CAP_PROP_FPS):
+          frame_count += 1
+          continue
         if not ret:
             print('End of video, Exiting')
             break
@@ -139,6 +139,7 @@ def YOLO(video='input.mp4', inputName="input"):
     out.release()
     outTracker.release()
     outSpeed.release()
+    print("Frame Counts", getFrameCounts())
 
 
 if __name__ == "__main__":
@@ -146,14 +147,24 @@ if __name__ == "__main__":
     my_parser = argparse.ArgumentParser(description='Path of the video')
 
     # Add the arguments
-    my_parser.add_argument('Path',
+    my_parser.add_argument('-p',
                            metavar='path',
                            type=str,
                            help='the path to list')
+    
+    my_parser.add_argument('-s',
+                           metavar='start',
+                           type=int)
+    
+    my_parser.add_argument('-e',
+                           metavar='end',
+                           type=int)
 
     # Execute the parse_args() method
     args = my_parser.parse_args()
 
-    input_path = args.Path
+    input_path = args.p
+    strt = args.s
+    end = args.e
     name = input_path[0:input_path.rfind('-')]
-    YOLO(input_path, name)
+    YOLO(input_path, name, strt, end)
