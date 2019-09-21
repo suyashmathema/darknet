@@ -65,14 +65,15 @@ def YOLO(video='input.mp4', inputName="input", start=0, end=-1):
     cap = cv2.VideoCapture(video)
     width = int(cap.get(3))
     height = int(cap.get(4))
-    out = cv2.VideoWriter(inputName+"-"+str(cap.get(cv2.CAP_PROP_FPS))+"-detection.mp4", cv2.VideoWriter_fourcc(*'FLV1'),
+    out = cv2.VideoWriter(inputName+"-"+str(int(cap.get(cv2.CAP_PROP_FPS)))+"fps-detection.mp4", cv2.VideoWriter_fourcc(*'FLV1'),
                           cap.get(cv2.CAP_PROP_FPS), (width, height))
 
-    outTracker = cv2.VideoWriter(inputName+"-"+str(cap.get(cv2.CAP_PROP_FPS))+"-tracking.mp4", cv2.VideoWriter_fourcc(*'FLV1'),
+    outTracker = cv2.VideoWriter(inputName+"-"+str(int(cap.get(cv2.CAP_PROP_FPS)))+"fps-tracking.mp4", cv2.VideoWriter_fourcc(*'FLV1'),
                                  cap.get(cv2.CAP_PROP_FPS), (width, height))
-    outSpeed = cv2.VideoWriter(inputName+"-"+str(cap.get(cv2.CAP_PROP_FPS))+"-speed.mp4", cv2.VideoWriter_fourcc(*'FLV1'),
+    outSpeed = cv2.VideoWriter(inputName+"-"+str(int(cap.get(cv2.CAP_PROP_FPS)))+"fps-speed.mp4", cv2.VideoWriter_fourcc(*'FLV1'),
                                cap.get(cv2.CAP_PROP_FPS), (width, height))
     frame_count = 0
+    sum_fps = 0
 
     init_speed_param(inputName)
 
@@ -129,8 +130,13 @@ def YOLO(video='input.mp4', inputName="input", start=0, end=-1):
             imageSpeed = cv2.cvtColor(imageSpeed, cv2.COLOR_BGR2RGB)
 
         # print('Execution Time Per Frame', time.time()-prev_time)
-        print('fps', 1/(time.time()-prev_time), 'frame', frame_count)
+        # print('fps', 1/(time.time()-prev_time), 'frame', frame_count)
         frame_count += 1
+        sum_fps += (1/(time.time()-prev_time))
+        if frame_count % 25 == 0: 
+            print(inputName+"-"+str(int(cap.get(cv2.CAP_PROP_FPS))), "FPS:", sum_fps/25)
+            sum_fps = 0
+
         out.write(frame_read)
         outTracker.write(clone_frame)
         outSpeed.write(clone_frame_speed)
@@ -141,7 +147,7 @@ def YOLO(video='input.mp4', inputName="input", start=0, end=-1):
     outTracker.release()
     outSpeed.release()
     print("CSV", getCsvData())
-    with open(inputName+"-"+str(cap.get(cv2.CAP_PROP_FPS))+"-data.csv", mode='w') as csv_file:
+    with open(inputName+"-"+str(cap.get(cv2.CAP_PROP_FPS))+"fps-data.csv", mode='w') as csv_file:
         fieldnames = ["frameNo", "tId", "velocity",
                       "xMin", "yMin", "xMax", "yMax", "score"]
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
