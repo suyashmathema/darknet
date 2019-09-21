@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import time
 import darknet
+import csv
 
 from utilities import *
 from tracking import *
@@ -21,7 +22,7 @@ metaMain = None
 altNames = None
 
 
-def YOLO(video='input.mp4', inputName="input", start = 0, end = -1):
+def YOLO(video='input.mp4', inputName="input", start=0, end=-1):
     global metaMain, netMain, altNames
     configPath = "./cfg/yolov3.cfg"
     weightPath = "./yolov3.weights"
@@ -85,12 +86,12 @@ def YOLO(video='input.mp4', inputName="input", start = 0, end = -1):
     initialize_tracker()
     while True:
         if end > 0 and frame_count > end * cap.get(cv2.CAP_PROP_FPS):
-          break
+            break
         prev_time = time.time()
         ret, frame_read = cap.read()
         if frame_count < start * cap.get(cv2.CAP_PROP_FPS):
-          frame_count += 1
-          continue
+            frame_count += 1
+            continue
         if not ret:
             print('End of video, Exiting')
             break
@@ -139,7 +140,14 @@ def YOLO(video='input.mp4', inputName="input", start = 0, end = -1):
     out.release()
     outTracker.release()
     outSpeed.release()
-    print("Frame Counts", getFrameCounts())
+    print("CSV", getCsvData())
+    with open(inputName+"-"+str(cap.get(cv2.CAP_PROP_FPS))+"-data.csv", mode='w') as csv_file:
+        fieldnames = ["frameNo", "tId", "velocity",
+                      "xMin", "yMin", "xMax", "yMax", "score"]
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in getCsvData():
+            writer.writerow(row)
 
 
 if __name__ == "__main__":
@@ -151,11 +159,11 @@ if __name__ == "__main__":
                            metavar='path',
                            type=str,
                            help='the path to list')
-    
+
     my_parser.add_argument('-s',
                            metavar='start',
                            type=int)
-    
+
     my_parser.add_argument('-e',
                            metavar='end',
                            type=int)

@@ -7,7 +7,8 @@ detections = None
 velocities = None
 score = None
 avg_velocities = None
-frame_counts = {}
+
+csv_data = []
 
 s_x = 16/223
 s_y = 3.9
@@ -38,7 +39,7 @@ parameters = {'GOPR1496-Car-60': {"s_x": 16/115, "s_y": 2.5, "y_min": 25.0, "y_m
 
 def init_speed_param(inputName):
     global s_x, s_y, y_min, y_max, L0, f1, f2, V0, s1, s2, H
-    param = parameters[inputName]  
+    param = parameters[inputName]
     s_x = param["s_x"]
     s_y = param["s_y"]
     y_min = param["y_min"]
@@ -98,7 +99,7 @@ def compute_vel(box_vel, det, frame, s_x, s_y, s1, s2, y_min, y_max, H, last_fra
 
 
 def estimateSpeed(track_bbs_ids, frame_no, fps):
-    global frame, track_ids, detections, velocities, score, avg_velocities
+    global frame, track_ids, detections, velocities, score, avg_velocities, csv_data
     new_detections = track_bbs_ids[:, :4]
     new_velocities = track_bbs_ids[:, -3:-1]
     new_score = track_bbs_ids[:, 4]
@@ -113,6 +114,15 @@ def estimateSpeed(track_bbs_ids, frame_no, fps):
         frame = np.array(new_frame)
         avg_velocities = np.array([V0] * len(track_bbs_ids))
         print('no previous estimates', avg_velocities)
+        for tid in track_ids:
+            csv_data.append({"frameNo": frame_no,
+                        "tId": tid,
+                        "velocity": V0,
+                        "xMin": new_detections[new_track_ids == tid][0][0],
+                        "yMin": new_detections[new_track_ids == tid][0][1],
+                        "xMax": new_detections[new_track_ids == tid][0][2],
+                        "yMax": new_detections[new_track_ids == tid][0][3],
+                        "score": new_score[new_track_ids == tid][0]})
         return avg_velocities
 
     # # filter out bounding boxes that is not in the cropped image
@@ -133,17 +143,22 @@ def estimateSpeed(track_bbs_ids, frame_no, fps):
 
     estimated_vels = []
     for tr in new_track_ids:
-        if tr in frame_counts:
-            frame_counts[tr] += frame_counts[tr] + 1
-        else:
-            frame_counts[tr] = 1
         det = new_detections[new_track_ids == tr]
         box_vel = new_velocities[new_track_ids == tr]
         last_frames = frame[track_ids == tr]
         last_avg_vels = avg_velocities[track_ids == tr]
         # measure the velocity
-        estimated_vels.append(compute_vel(box_vel[0], det[0], frame_no, s_x, s_y, s1, s2,
-                                          y_min, y_max, H, last_frames, last_avg_vels, fps))
+        calc_vel = compute_vel(box_vel[0], det[0], frame_no, s_x, s_y, s1, s2,
+                               y_min, y_max, H, last_frames, last_avg_vels, fps)
+        estimated_vels.append(calc_vel)
+        csv_data.append({"frameNo": frame_no,
+                    "tId": tr,
+                    "velocity": calc_vel,
+                    "xMin": det[0][0],
+                    "yMin": det[0][1],
+                    "xMax": det[0][2],
+                    "yMax": det[0][3],
+                    "score": new_score[new_track_ids == tr][0]})
 
     detections = np.append(detections, new_detections, 0)
     velocities = np.append(velocities, new_velocities, 0)
@@ -154,5 +169,5 @@ def estimateSpeed(track_bbs_ids, frame_no, fps):
 
     return estimated_vels
 
-def getFrameCounts():
-    return frame_counts
+def getCsvData():
+    return csv_data
