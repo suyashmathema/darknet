@@ -142,18 +142,17 @@ def YOLO(video='input.mp4', inputName="input", start=0, end=-1):
         outSpeed.write(clone_frame_speed)
         cv2.waitKey(0)
     print('End Time', time.time(), 'Elapsed Time', time.time() - strt_time)
-    cap.release()
-    out.release()
-    outTracker.release()
-    outSpeed.release()
-    print("CSV", getCsvData())
-    with open(inputName+"-"+str(cap.get(cv2.CAP_PROP_FPS))+"fps-data.csv", mode='w') as csv_file:
+    with open(inputName+"-"+str(int(cap.get(cv2.CAP_PROP_FPS)))+"fps-data.csv", mode='w') as csv_file:
         fieldnames = ["frameNo", "tId", "velocity",
                       "xMin", "yMin", "xMax", "yMax", "score"]
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         for row in getCsvData():
             writer.writerow(row)
+    cap.release()
+    out.release()
+    outTracker.release()
+    outSpeed.release()
 
 
 if __name__ == "__main__":

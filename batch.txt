@@ -1,0 +1,107 @@
+#Bike
+%env VID_NAME=GOPR1485-Bike-30
+%env STRT_TIME = 13
+%env END_TIME = 23
+!python detections.py -p $VID_NAME-25fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-50fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-30fps.mp4 -s $STRT_TIME -e $END_TIME
+!cp $VID_NAME*speed* "/content/drive/My Drive/Colab/"
+!cp $VID_NAME*data* "/content/drive/My Drive/Colab/"
+
+%env VID_NAME=GOPR1486-Bike-40
+%env STRT_TIME = 42
+%env END_TIME = 52
+!python detections.py -p $VID_NAME-25fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-50fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-30fps.mp4 -s $STRT_TIME -e $END_TIME
+!cp $VID_NAME*speed* "/content/drive/My Drive/Colab/"
+!cp $VID_NAME*data* "/content/drive/My Drive/Colab/"
+
+%env VID_NAME=GOPR1487-Bike-50
+%env STRT_TIME = 50
+%env END_TIME = 60
+!python detections.py -p $VID_NAME-25fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-50fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-30fps.mp4 -s $STRT_TIME -e $END_TIME
+!cp $VID_NAME*speed* "/content/drive/My Drive/Colab/"
+!cp $VID_NAME*data* "/content/drive/My Drive/Colab/"
+
+%env VID_NAME=GOPR1488-Bike-50
+%env STRT_TIME = 17
+%env END_TIME = 27
+!python detections.py -p $VID_NAME-25fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-50fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-30fps.mp4 -s $STRT_TIME -e $END_TIME
+!cp $VID_NAME*speed* "/content/drive/My Drive/Colab/"
+!cp $VID_NAME*data* "/content/drive/My Drive/Colab/"
+
+%env VID_NAME=GOPR1489-Bike-60
+%env STRT_TIME = 27
+%env END_TIME = 37
+!python detections.py -p $VID_NAME-25fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-30fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-60fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-90fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-120fps.mp4 -s $STRT_TIME -e $END_TIME
+!cp $VID_NAME*speed* "/content/drive/My Drive/Colab/"
+!cp $VID_NAME*data* "/content/drive/My Drive/Colab/"
+
+
+#CAR
+%env VID_NAME=GOPR1491-Car-30
+%env STRT_TIME = 25
+%env END_TIME = 35
+!python detections.py -p $VID_NAME-25fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-50fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-30fps.mp4 -s $STRT_TIME -e $END_TIME
+!cp $VID_NAME*speed* "/content/drive/My Drive/Colab/"
+!cp $VID_NAME*data* "/content/drive/My Drive/Colab/"
+
+%env VID_NAME=GOPR1492-Car-40
+%env STRT_TIME = 35
+%env END_TIME = 45
+!python detections.py -p $VID_NAME-25fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-50fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-30fps.mp4 -s $STRT_TIME -e $END_TIME
+!cp $VID_NAME*speed* "/content/drive/My Drive/Colab/"
+!cp $VID_NAME*data* "/content/drive/My Drive/Colab/"
+
+%env VID_NAME=GOPR1493-Car-50
+%env STRT_TIME = 15
+%env END_TIME = 25
+!python detections.py -p $VID_NAME-25fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-50fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-30fps.mp4 -s $STRT_TIME -e $END_TIME
+!cp $VID_NAME*speed* "/content/drive/My Drive/Colab/"
+!cp $VID_NAME*data* "/content/drive/My Drive/Colab/"
+
+%env VID_NAME=GOPR1494-Car-50
+%env STRT_TIME = 28
+%env END_TIME = 38
+!python detections.py -p $VID_NAME-25fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-50fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-30fps.mp4 -s $STRT_TIME -e $END_TIME
+!cp $VID_NAME*speed* "/content/drive/My Drive/Colab/"
+!cp $VID_NAME*data* "/content/drive/My Drive/Colab/"
+
+%env VID_NAME=GOPR1495-Car-50
+%env STRT_TIME = 26
+%env END_TIME = 36
+!python detections.py -p $VID_NAME-25fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-30fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-60fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-90fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-120fps.mp4 -s $STRT_TIME -e $END_TIME
+!cp $VID_NAME*speed* "/content/drive/My Drive/Colab/"
+!cp $VID_NAME*data* "/content/drive/My Drive/Colab/"
+
+%env VID_NAME=GOPR1496-Car-60
+%env STRT_TIME = 30
+%env END_TIME = 40
+!python detections.py -p $VID_NAME-25fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-30fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-60fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-90fps.mp4 -s $STRT_TIME -e $END_TIME
+!python detections.py -p $VID_NAME-120fps.mp4 -s $STRT_TIME -e $END_TIME
+!cp $VID_NAME*speed* "/content/drive/My Drive/Colab/"
+!cp $VID_NAME*data* "/content/drive/My Drive/Colab/"
