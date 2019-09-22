@@ -87,11 +87,14 @@ def estimateSpeed(track_bbs_ids, frame_no, fps):
 
             if intersect((curr_coord[0], curr_coord[1]), (prev_coord[0], prev_coord[1]), line2[0], line2[1]):
                 new_inter_data[i][1] = frame_no
-                line1Frame = prev_inter_id[prev_inter_id[:, 0] > 0][0][0]
-                new_inter_data[i][2] = 10.0 / \
-                    (frame_no - line1Frame) * fps * 3.6
-                print("Calculating speed", tid, line1Frame,
-                      frame_no, new_inter_data[i][2])
+                line1Frame = prev_inter_id[prev_inter_id[:, 0] > 0]
+                if len(line1Frame) > 0:
+                    new_inter_data[i][2] = 10.0 / \
+                        (frame_no - line1Frame[0][0]) * fps * 3.6
+                    print("Calculating speed", tid,
+                          line1Frame[0][0], frame_no, new_inter_data[i][2])
+                print("Unable to calculate speed")
+                new_inter_data[i][2] = 0
 
     detections = np.append(detections, new_detections, 0)
     score = np.append(score, new_score)
