@@ -129,7 +129,7 @@ def cvDrawBoxesSpeedLines(vels, detections, lines, img):
 
         speed = " [NA]"
         if vels[i][2] > 0:
-            speed = " [" + str(round(speed, 2)) + "km/h]"
+            speed = " [" + str(round(vels[i][2], 2)) + "km/h]"
         cv2.putText(img,
                     "ID:" + str(detection[5]) + speed,
                     (pt1[0], pt1[1] - 5), cv2.FONT_HERSHEY_SIMPLEX, 1,

@@ -56,41 +56,48 @@ def estimateSpeed(track_bbs_ids, frame_no, fps):
     new_score = track_bbs_ids[:, 4]
     new_track_ids = track_bbs_ids[:, 5]
     new_frame = [frame_no] * len(track_bbs_ids)
-    new_inter_data = [-1, -1, -1] * len(track_bbs_ids)
+    new_inter_data = np.array(
+        [[-1.0, -1.0, -1.0, frame_no]] * len(track_bbs_ids))
 
     if (detections is None):
         detections = np.matrix(new_detections)
         score = np.array(new_score)
         track_ids = np.array(new_track_ids)
         frame = np.array(new_frame)
-        inter_data = np.array(new_inter_data)
-        return  # TODO
+        inter_data = np.matrix(new_inter_data)
+        return new_inter_data
 
     prev_dets = detections[frame == frame_no - 1]
     prev_tids = track_ids[frame == frame_no - 1]
 
-    for tid in new_track_ids:
-        curr_det = new_detections[new_track_ids == tid][0]
-        prev_det = prev_dets[prev_tids == tid]
+    for i, tid in enumerate(new_track_ids):
+        curr_det = new_detections[new_track_ids == tid]
+        prev_det = np.asarray(prev_dets[prev_tids == tid])
+
         if len(prev_det) > 0:
             curr_coord = convertToCenterCoord(curr_det[0])
             prev_coord = convertToCenterCoord(prev_det[0])
 
+            prev_inter_id = np.asarray(inter_data[track_ids == tid])
+            new_inter_data[i] = np.amax(prev_inter_id, axis=0)
+            new_inter_data[i][3] = frame_no
+
             if intersect((curr_coord[0], curr_coord[1]), (prev_coord[0], prev_coord[1]), line1[0], line1[1]):
-                new_inter_data[0] = frame_no
+                new_inter_data[i][0] = frame_no
 
             if intersect((curr_coord[0], curr_coord[1]), (prev_coord[0], prev_coord[1]), line2[0], line2[1]):
-                new_inter_data[1] = frame_no
-                prev_inter_id = inter_data[track_ids == tid]
+                new_inter_data[i][1] = frame_no
                 line1Frame = prev_inter_id[prev_inter_id[:, 0] > 0][0][0]
-                new_inter_data[2] = (frame_no - line1Frame) / fps * 3.6
+                new_inter_data[i][2] = 10.0 / \
+                    (frame_no - line1Frame) * fps * 3.6
+                print("Calculating speed", tid, line1Frame,
+                      frame_no, new_inter_data[i][2])
 
-        detections = np.append(detections, new_detections, 0)
-        score = np.append(score, new_score)
-        track_ids = np.append(track_ids, new_track_ids)
-        frame = np.append(frame, new_frame)
-        inter_data = np.append(inter_data, new_inter_data)
-
+    detections = np.append(detections, new_detections, 0)
+    score = np.append(score, new_score)
+    track_ids = np.append(track_ids, new_track_ids)
+    frame = np.append(frame, new_frame)
+    inter_data = np.append(inter_data, new_inter_data, 0)
     return new_inter_data
 
 
@@ -104,13 +111,13 @@ def getCsvData():
         csv_data.append({
             "frame": frame[i],
             "tid": tid,
-            "speed": inter_data[i][2],
-            "line1": inter_data[i][0],
-            "line2": inter_data[i][1],
-            "xmin": detections[i][0],
-            "ymin": detections[i][1],
-            "xmax": detections[i][2],
-            "ymax": detections[i][3],
+            "speed": inter_data[i, 2],
+            "line1": inter_data[i, 0],
+            "line2": inter_data[i, 1],
+            "xmin": detections[i, 0],
+            "ymin": detections[i, 1],
+            "xmax": detections[i, 2],
+            "ymax": detections[i, 3],
             "score": score[i],
         })
     return csv_data

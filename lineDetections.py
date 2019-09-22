@@ -144,7 +144,7 @@ def YOLO(video='input.mp4', inputName="input", start=0, end=-1):
         cv2.waitKey(0)
     print('End Time', time.time(), 'Elapsed Time', time.time() - strt_time)
     with open(inputName+"-"+str(int(cap.get(cv2.CAP_PROP_FPS)))+"fps-line-data.csv", mode='w') as csv_file:
-        fieldnames = ["frame", "tid", "speed", "line1", "line2"
+        fieldnames = ["frame", "tid", "speed", "line1", "line2",
                       "xmin", "ymin", "xmax", "ymax", "score"]
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
