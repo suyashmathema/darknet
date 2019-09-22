@@ -20,9 +20,12 @@ parameters = {'GOPR1496-Car-60': {"dist": 10, "line1": [(491, 217), (763, 203)],
               'GOPR1491-Car-30': {"dist": 10, "line1": [(652, 233), (1016, 213)], "line2": [(672, 473), (1230, 417)]}
               }
 
-csv_data = np.empty([1, 7])
-inter_data = {}
-dist = 6
+frame = None
+track_ids = None
+detections = None
+score = None
+inter_data = None
+dist = 10
 line1 = []
 line2 = []
 
@@ -48,38 +51,66 @@ def convertToCenterCoord(detection):
 
 
 def estimateSpeed(track_bbs_ids, frame_no, fps):
-    global csv_data, inter_data
+    global frame, track_ids, detections, score, inter_data
     new_detections = track_bbs_ids[:, :4]
     new_score = track_bbs_ids[:, 4]
     new_track_ids = track_bbs_ids[:, 5]
+    new_frame = [frame_no] * len(track_bbs_ids)
+    new_inter_data = [-1, -1, -1] * len(track_bbs_ids)
 
-    prev_frame = csv_data[csv_data[:, 0] == (frame_no - 1), :]
+    if (detections is None):
+        detections = np.matrix(new_detections)
+        score = np.array(new_score)
+        track_ids = np.array(new_track_ids)
+        frame = np.array(new_frame)
+        inter_data = np.array(new_inter_data)
+        return  # TODO
+
+    prev_dets = detections[frame == frame_no - 1]
+    prev_tids = track_ids[frame == frame_no - 1]
 
     for tid in new_track_ids:
         curr_det = new_detections[new_track_ids == tid][0]
-        det = convertToCenterCoord(curr_det)
-        prev_coord = prev_frame[prev_frame[:, 1] == tid]
+        prev_det = prev_dets[prev_tids == tid]
+        if len(prev_det) > 0:
+            curr_coord = convertToCenterCoord(curr_det[0])
+            prev_coord = convertToCenterCoord(prev_det[0])
 
-        data = [frame_no, tid, det[0], det[1], det[2],
-                         det[3], new_score[new_track_ids == tid][0], False, False]
+            if intersect((curr_coord[0], curr_coord[1]), (prev_coord[0], prev_coord[1]), line1[0], line1[1]):
+                new_inter_data[0] = frame_no
 
-        if intersect((det[0], det[1]), (prev_coord[2], prev_coord[3]), line1[0], line1[1]):
-            inter_data[tid]["line1"] = frame_no
-            data[7] = 1
+            if intersect((curr_coord[0], curr_coord[1]), (prev_coord[0], prev_coord[1]), line2[0], line2[1]):
+                new_inter_data[1] = frame_no
+                prev_inter_id = inter_data[track_ids == tid]
+                line1Frame = prev_inter_id[prev_inter_id[:, 0] > 0][0][0]
+                new_inter_data[2] = (frame_no - line1Frame) / fps * 3.6
 
-        if intersect((det[0], det[1]), (prev_coord[2], prev_coord[3]), line2[0], line2[1]):
-            inter_data[tid]["line2"] = frame_no
-            inter_data[tid]["speed"] = (
-                frame_no - inter_data[tid]["line1"]) / fps * 3.6
-            data[7] = 2
-            data[8] = True
+        detections = np.append(detections, new_detections, 0)
+        score = np.append(score, new_score)
+        track_ids = np.append(track_ids, new_track_ids)
+        frame = np.append(frame, new_frame)
+        inter_data = np.append(inter_data, new_inter_data)
 
-        csv_data.append()
+    return new_inter_data
 
-    return inter_data
 
 def getSpeedLines():
     return (line1, line2)
 
+
 def getCsvData():
+    csv_data = []
+    for i, tid in enumerate(track_ids):
+        csv_data.append({
+            "frame": frame[i],
+            "tid": tid,
+            "speed": inter_data[i][2],
+            "line1": inter_data[i][0],
+            "line2": inter_data[i][1],
+            "xmin": detections[i][0],
+            "ymin": detections[i][1],
+            "xmax": detections[i][2],
+            "ymax": detections[i][3],
+            "score": score[i],
+        })
     return csv_data

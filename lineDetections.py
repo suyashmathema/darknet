@@ -123,18 +123,19 @@ def YOLO(video='input.mp4', inputName="input", start=0, end=-1):
         imageTracked = cv2.cvtColor(imageTracked, cv2.COLOR_BGR2RGB)
 
         if len(track_ids) > 0:
-            vels_tid = estimateSpeed(
+            vels = estimateSpeed(
                 track_ids, frame_count, cap.get(cv2.CAP_PROP_FPS))
-            imageSpeed = cvDrawBoxesSpeed(
-                vels_tid, track_ids[:, :6], clone_frame_speed)
+            imageSpeed = cvDrawBoxesSpeedLines(
+                vels, track_ids[:, :6], getSpeedLines(), clone_frame_speed)
             imageSpeed = cv2.cvtColor(imageSpeed, cv2.COLOR_BGR2RGB)
 
         # print('Execution Time Per Frame', time.time()-prev_time)
         # print('fps', 1/(time.time()-prev_time), 'frame', frame_count)
         frame_count += 1
         sum_fps += (1/(time.time()-prev_time))
-        if frame_count % 25 == 0: 
-            print(inputName+"-"+str(int(cap.get(cv2.CAP_PROP_FPS))), "FPS:", sum_fps/25)
+        if frame_count % 25 == 0:
+            print(inputName+"-"+str(int(cap.get(cv2.CAP_PROP_FPS))),
+                  "FPS:", sum_fps/25)
             sum_fps = 0
 
         out.write(frame_read)
@@ -142,7 +143,13 @@ def YOLO(video='input.mp4', inputName="input", start=0, end=-1):
         outSpeed.write(clone_frame_speed)
         cv2.waitKey(0)
     print('End Time', time.time(), 'Elapsed Time', time.time() - strt_time)
-    np.savetxt(inputName+"-"+str(int(cap.get(cv2.CAP_PROP_FPS)))+"fps-line-data.csv", getCsvData())
+    with open(inputName+"-"+str(int(cap.get(cv2.CAP_PROP_FPS)))+"fps-line-data.csv", mode='w') as csv_file:
+        fieldnames = ["frame", "tid", "speed", "line1", "line2"
+                      "xmin", "ymin", "xmax", "ymax", "score"]
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in getCsvData():
+            writer.writerow(row)
     cap.release()
     out.release()
     outTracker.release()
